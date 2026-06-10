@@ -465,8 +465,8 @@ function setupWork() {
       onUpdate: (self) => {
         const p = self.progress;
         if (p <= V_START) {
-          // grid phase — keep cards flat (fixes skew/zoom when scrolling back up)
-          cards.forEach((c) => gsap.set(c, { rotation: 0, rotationY: 0, scale: 1, borderRadius: "24px" }));
+          // grid phase — keep cards flat rectangles (fixes leftover morph when scrolling back up)
+          cards.forEach((c) => gsap.set(c, { clipPath: "none", y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0, scale: 1, borderRadius: "24px" }));
           return;
         }
         const vp = (p - V_START) / (1 - V_START);
@@ -475,17 +475,24 @@ function setupWork() {
         COL_ORDER.forEach((cardIdx, slot) => {
           const d = Math.abs(slot - center);
           const t = Math.min(d, 1);
-          // 1) the card tilts slightly first (clean rounded rectangle, gentle 2D rotation)
-          const rf = Math.max(0, Math.min(1, (0.55 - t) / 0.55));
-          // 2) then, closer to center, it zooms in
-          const zf = Math.max(0, Math.min(1, (0.32 - t) / 0.32));
+          // focus progress: 0 = far/below, 1 = dead center
+          const fp = 1 - t;
+          // 3-stage morph: (a) shape warps + slides down + head tilts back → (b) straightens → (c) zooms
+          const K0 = [6, 10, 96, 2, 98, 88, 3, 100];
+          const K1 = [2, 3, 99, 0, 100, 96, 0, 100];
+          const K2 = [0, 0, 100, 0, 100, 100, 0, 100];
+          let A, B, u;
+          if (fp < 0.5) { A = K0; B = K1; u = fp / 0.5; } else { A = K1; B = K2; u = (fp - 0.5) / 0.5; }
+          const q = A.map((v, i) => +(v + (B[i] - v) * u).toFixed(2));
+          const seg = (a, b, c) => (fp < 0.5 ? a + (b - a) * (fp / 0.5) : b + (c - b) * ((fp - 0.5) / 0.5));
           gsap.set(cards[cardIdx], {
-            scale: 0.96 + zf * 0.2, // zooms in (~1.16) after the tilt
+            clipPath: `polygon(${q[0]}% ${q[1]}%, ${q[2]}% ${q[3]}%, ${q[4]}% ${q[5]}%, ${q[6]}% ${q[7]}%)`,
+            y: seg(70, 20, 0),            // slides down while morphing, then back up
+            rotateX: seg(12, 4, 0),        // top edge leans back (head bows)
+            rotateZ: seg(-2, -0.8, 0),     // tiny twist so it isn't stiff
+            scale: seg(0.78, 0.9, 1.18),   // small → straightens → zooms in
             filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.5) * 9}px)`,
             opacity: Math.max(0, 1 - d * 0.55),
-            rotation: -5 * rf, // slight, even tilt (like the vstory reference)
-            rotationY: 0,
-            borderRadius: 24 + rf * 12 + "px", // equal rounded corners, a touch rounder when focused
             zIndex: 60 - Math.round(t * 20),
           });
         });

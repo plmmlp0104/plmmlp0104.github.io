@@ -469,7 +469,9 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: left, top, width, height, filter, opacity, transform, border-radius;
+  transform-style: preserve-3d;
+  transform-origin: center 65%;
+  will-change: left, top, width, height, filter, opacity, transform, clip-path;
 }
 .ws__card .showcase__num {
   position: absolute;
