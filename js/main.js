@@ -475,17 +475,17 @@ function setupWork() {
         COL_ORDER.forEach((cardIdx, slot) => {
           const d = Math.abs(slot - center);
           const t = Math.min(d, 1);
-          // 1) corners round off ASYMMETRICALLY first (looks tilted — not a real rotation)
-          const rf = Math.max(0, Math.min(1, (0.6 - t) / 0.6));
+          // 1) the card tilts slightly first (clean rounded rectangle, gentle 2D rotation)
+          const rf = Math.max(0, Math.min(1, (0.55 - t) / 0.55));
           // 2) then, closer to center, it zooms in
           const zf = Math.max(0, Math.min(1, (0.32 - t) / 0.32));
-          const big = 22 + rf * 52; // up to ~74px on two opposite corners
           gsap.set(cards[cardIdx], {
-            scale: 0.96 + zf * 0.2, // zooms in (~1.16) after the corners have rounded
+            scale: 0.96 + zf * 0.2, // zooms in (~1.16) after the tilt
             filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.5) * 9}px)`,
             opacity: Math.max(0, 1 - d * 0.55),
+            rotation: -5 * rf, // slight, even tilt (like the vstory reference)
             rotationY: 0,
-            borderRadius: `${big}px 22px ${big}px 22px`, // asymmetric corners → tilted look
+            borderRadius: 24 + rf * 12 + "px", // equal rounded corners, a touch rounder when focused
             zIndex: 60 - Math.round(t * 20),
           });
         });
