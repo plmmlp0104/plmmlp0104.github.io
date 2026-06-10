@@ -449,11 +449,8 @@ function setupWork() {
     left: "20vw", width: "60vw", height: "62vh", top: slot * GAP + 19 + "vh",
   }));
   const endY = -((N - 1) * GAP);
-  // clip-path: shave the top-right + bottom-left corners by b%
-  const cut = (b) => `polygon(0 0, ${100 - b}% 0, 100% ${b}%, 100% 100%, ${b}% 100%, 0 ${100 - b}%)`;
-
   // initial: 3x3 grid, dim; whole grid tilted in 3D
-  cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0, rotationY: 0, clipPath: cut(0) }));
+  cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0, rotationY: 0 }));
   gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, transformOrigin: "50% 50%" });
 
   const V_START = 0.3; // progress where the centered vertical scroll begins
@@ -468,8 +465,8 @@ function setupWork() {
       onUpdate: (self) => {
         const p = self.progress;
         if (p <= V_START) {
-          // grid phase — keep cards clean (fixes skew when scrolling back up)
-          cards.forEach((c) => gsap.set(c, { rotation: 0, rotationY: 0, clipPath: cut(0) }));
+          // grid phase — keep cards flat (fixes skew when scrolling back up)
+          cards.forEach((c) => gsap.set(c, { rotation: 0, rotationY: 0 }));
           return;
         }
         const vp = (p - V_START) / (1 - V_START);
@@ -482,7 +479,7 @@ function setupWork() {
             scale: 1 - t * 0.15,
             filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.5) * 9}px)`,
             opacity: Math.max(0, 1 - d * 0.55),
-            clipPath: cut(12 * (1 - t)), // centered card: top-right & bottom-left corners shaved
+            rotationY: -9 + (slot < center ? -1 : 1) * t * 6, // centered card turns slightly to the right (smooth)
             zIndex: 60 - Math.round(t * 20),
           });
         });
