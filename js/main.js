@@ -466,7 +466,7 @@ function setupWork() {
         const p = self.progress;
         if (p <= V_START) {
           // grid phase — keep cards flat (fixes skew when scrolling back up)
-          cards.forEach((c) => gsap.set(c, { rotation: 0, rotationY: 0 }));
+          cards.forEach((c) => gsap.set(c, { rotation: 0, rotationY: 0, borderRadius: "24px" }));
           return;
         }
         const vp = (p - V_START) / (1 - V_START);
@@ -480,6 +480,7 @@ function setupWork() {
             filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.5) * 9}px)`,
             opacity: Math.max(0, 1 - d * 0.55),
             rotationY: -9 + (slot < center ? -1 : 1) * t * 6, // centered card turns slightly to the right (smooth)
+            borderRadius: 24 + (1 - t) * 16 + "px", // four corners round off more as it focuses (~40px)
             zIndex: 60 - Math.round(t * 20),
           });
         });

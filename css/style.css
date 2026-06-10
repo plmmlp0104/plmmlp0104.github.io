@@ -464,12 +464,12 @@ a { color: inherit; text-decoration: none; }
 .ws__cards { position: absolute; inset: 0; z-index: 1; transform-style: preserve-3d; will-change: transform; }
 .ws__card {
   position: absolute;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  will-change: left, top, width, height, filter, opacity, transform;
+  will-change: left, top, width, height, filter, opacity, transform, border-radius;
 }
 .ws__card .showcase__num {
   position: absolute;
