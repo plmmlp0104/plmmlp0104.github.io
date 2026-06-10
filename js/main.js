@@ -449,6 +449,16 @@ function setupWork() {
   // ---- Mobile / reduced-motion: simple 2-col grid of cards (no pin) ----
   if (window.innerWidth < 1024 || reduceMotion) {
     stage.classList.add("is-static");
+    // cards rise & fade in as they scroll into view (light, mobile-friendly)
+    if (!reduceMotion && window.ScrollTrigger) {
+      gsap.set(cards, { opacity: 0, y: 42 });
+      ScrollTrigger.batch(cards, {
+        start: "top 90%",
+        onEnter: (els) =>
+          gsap.to(els, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out", overwrite: true }),
+      });
+      ScrollTrigger.refresh();
+    }
     return;
   }
 
