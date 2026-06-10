@@ -8,6 +8,10 @@ gsap.registerPlugin(ScrollTrigger, SplitText);
 // always start at the top on (re)load — don't restore previous scroll position
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
+window.addEventListener("pageshow", () => {
+  window.scrollTo(0, 0);
+  if (lenis) lenis.scrollTo(0, { immediate: true });
+});
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -304,6 +308,8 @@ const SHAPES = {
 };
 
 const modal = document.getElementById("modal");
+const modalBg = document.getElementById("modalBg");
+const modalBgGlyph = document.getElementById("modalBgGlyph");
 const modalHeroShape = document.getElementById("modalHeroShape");
 const modalBoardShape = document.getElementById("modalBoardShape");
 const modalGlyph = document.getElementById("modalGlyph");
@@ -342,6 +348,8 @@ function openModal(id) {
   modalGlyph.className = "sc-glyph " + sh.glyph;
   modalBoardShape.className = "detail__shape detail__shape--board sc--" + sh.sc;
   modalGlyph2.className = "sc-glyph " + sh.glyph;
+  if (modalBg) modalBg.className = "detail__bg sc--" + sh.sc;
+  if (modalBgGlyph) modalBgGlyph.className = "sc-glyph " + sh.glyph;
   modalCat.textContent = p.cat;
   modalTitle.textContent = p.title;
   modalMeta.innerHTML = p.meta.map((m) => `<li>${m}</li>`).join("");
@@ -424,7 +432,7 @@ function setupWork() {
 
   const N = cards.length; // 9
   // big tight 3x3 grid that overflows the viewport (vstory-style — cards fill the screen)
-  const cols = [-6.5, 32.5, 71.5]; // vw (left), card 37vw wide, ~2vw gap, bleeds off edges
+  const cols = [-6.5, 32.5, 71.5]; // vw (left), card 37vw wide, bleeds off edges
   const rows = [-5, 33, 71]; // vh (top), card 36vh tall
   const grid = cards.map((_, i) => ({
     left: cols[i % 3] + "vw",
@@ -432,42 +440,45 @@ function setupWork() {
     width: "37vw",
     height: "36vh",
   }));
-  // vertical column (right side), each card one "screen" apart
-  const GAP = 80; // vh
-  const column = cards.map((_, i) => ({
-    left: "44vw", width: "50vw", height: "62vh", top: i * GAP + 19 + "vh",
+  // the two cards that stay: center (idx 4) + the one below it (idx 7)
+  const FEATURED = [4, 7];
+  // the rest blur away in order: top-center → sides → corners
+  const FADE_ORDER = [1, 3, 5, 0, 2, 6, 8];
+  // viewer positions for the two featured cards (moved to the right, stacked)
+  const VGAP = 72; // vh between the two
+  const viewer = FEATURED.map((_, k) => ({
+    left: "47vw", top: k * VGAP + 19 + "vh", width: "48vw", height: "62vh",
   }));
-  const endY = -((N - 1) * GAP); // yPercent for the cards container
+  const endY = -((FEATURED.length - 1) * VGAP); // container translate
 
   // initial: 3x3 grid, dim; whole grid tilted in 3D
   cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0 }));
   gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, transformOrigin: "50% 50%" });
 
-  const V_START = 0.21; // progress at which the vertical card phase begins
+  const V_START = 0.46; // progress where the two featured cards start scrolling
 
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: stage,
       start: "top top",
-      end: "+=560%",
+      end: "+=460%",
       pin: true,
       scrub: 1.2,
       onUpdate: (self) => {
         const p = self.progress;
         if (p <= V_START) return;
         const vp = (p - V_START) / (1 - V_START);
-        const center = vp * (N - 1); // fractional centered index
-        setCaption(ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]);
-        // only the centered card + the one just below stay; the rest blur away.
-        cards.forEach((c, i) => {
-          const d = Math.abs(i - center);
+        const center = vp * (FEATURED.length - 1); // 0 → 1 (card4 → card7)
+        setCaption(ORDER[FEATURED[Math.min(FEATURED.length - 1, Math.max(0, Math.round(center)))]]);
+        FEATURED.forEach((ci, k) => {
+          const d = Math.abs(k - center);
           const t = Math.min(d, 1);
-          gsap.set(c, {
-            scale: 1 - t * 0.18,
-            filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.6) * 9}px)`,
-            opacity: Math.max(0, 1 - d * 0.6), // center=1, below≈0.4, further=gone
-            rotation: (i < center ? -1 : 1) * t * 2,
-            rotationY: -8 + (i < center ? -1 : 1) * t * 8, // faces front then turns slightly right
+          gsap.set(cards[ci], {
+            scale: 1 - t * 0.16,
+            filter: `brightness(${1 - t * 0.35}) blur(${Math.min(d, 1.4) * 9}px)`,
+            opacity: Math.max(0, 1 - d * 0.5),
+            rotation: (k < center ? -1 : 1) * t * 2,
+            rotationY: -9 + (k < center ? -1 : 1) * t * 7, // faces front then turns slightly right
             zIndex: 60 - Math.round(t * 20),
           });
         });
@@ -475,21 +486,26 @@ function setupWork() {
     },
   });
 
-  // phase 1 — grid straightens (돌아가면서) + cards become vivid (진해지고) + title out
+  // phase 1 — grid straightens + cards become vivid + title out
   tl.to(cardsWrap, { rotateX: 0, rotateZ: 0, scale: 1, duration: 0.8, ease: "power2.out" }, 0);
   tl.to(cards, { filter: "brightness(1)", duration: 0.7, ease: "power2.out" }, 0.1);
   tl.to("#wsTitle", { opacity: 0, scale: 0.85, duration: 0.5, ease: "power2.in" }, 0);
-  // phase 2 — grid blurs AWAY in place (no fly-around), then snaps into the stack while hidden
-  tl.to(cards, { filter: "brightness(0.7) blur(14px)", opacity: 0, duration: 0.5, ease: "power2.in" }, 0.9);
-  cards.forEach((c, i) => tl.set(c, { ...column[i] }, 1.4)); // reposition while invisible (cross-fade, not scatter)
-  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 1.5);
-  // phase 3 — scroll the stack: centered card big/sharp/turned-right, the one below peeks, rest gone
-  tl.to(cardsWrap, { yPercent: endY, duration: 6.0, ease: "none" }, 1.6); // total ≈ 7.6 → vertical = progress ~0.21→1
+  // phase 2 — surrounding cards blur away ONE BY ONE (top → sides → corners), in place
+  FADE_ORDER.forEach((idx, k) =>
+    tl.to(cards[idx], { filter: "brightness(0.6) blur(16px)", opacity: 0, duration: 0.5, ease: "power2.in" }, 0.9 + k * 0.14)
+  );
+  // phase 3 — the remaining center + below move to the right (and the centered one twists)
+  FEATURED.forEach((ci, k) =>
+    tl.to(cards[ci], { ...viewer[k], duration: 0.85, ease: "power3.inOut" }, 2.1)
+  );
+  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 2.6);
+  // phase 4 — scroll through the two featured cards
+  tl.to(cardsWrap, { yPercent: endY, duration: 3.4, ease: "none" }, 3.0); // total ≈ 6.4 → V_START ≈ 0.46
 
-  // ---- Lenis-friendly settle-snap on each card (only once the user stops) ----
+  // ---- Lenis-friendly settle-snap on the two featured cards ----
   if (lenis) {
     const st = tl.scrollTrigger;
-    const SNAPS = Array.from({ length: N }, (_, i) => V_START + (i / (N - 1)) * (1 - V_START));
+    const SNAPS = Array.from({ length: FEATURED.length }, (_, i) => V_START + (i / (FEATURED.length - 1)) * (1 - V_START));
     let snapTimer = null;
     let snapping = false;
     lenis.on("scroll", ({ velocity }) => {
