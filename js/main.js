@@ -415,14 +415,14 @@ function setupWork() {
   }
 
   const N = cards.length; // 9
-  // 3x3 grid layout
-  const cols = [7, 37, 67]; // vw (left)
-  const rows = [5, 36, 67]; // vh (top)
+  // tight 3x3 grid that fills the viewport (vstory-style, edge to edge)
+  const cols = [1.5, 34, 66.5]; // vw (left), card 32vw wide, ~0.5vw gap
+  const rows = [2, 35, 68]; // vh (top), card 30vh tall
   const grid = cards.map((_, i) => ({
     left: cols[i % 3] + "vw",
     top: rows[Math.floor(i / 3)] + "vh",
-    width: "26vw",
-    height: "28vh",
+    width: "32vw",
+    height: "30vh",
   }));
   // vertical column (right side), each card one "screen" apart
   const GAP = 80; // vh
@@ -456,9 +456,10 @@ function setupWork() {
           const t = Math.min(d, 1);
           gsap.set(c, {
             scale: 1 - t * 0.16,
-            filter: `brightness(${1 - t * 0.4}) blur(${t * 7}px)`,
-            opacity: 1 - t * 0.28,
+            filter: `brightness(${1 - t * 0.45}) blur(${t * 7}px)`,
+            opacity: 1 - t * 0.32,
             rotation: (i < center ? -1 : 1) * t * 3,
+            rotationY: -7 + (i < center ? -1 : 1) * t * 9, // faces front, then turns slightly right
             zIndex: 60 - Math.round(t * 20),
           });
         });
