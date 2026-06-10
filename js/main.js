@@ -117,37 +117,44 @@ function initScrollAnimations() {
     });
   });
 
-  /* 3b. Big marquee rows — base loop + scroll velocity boost */
+  /* 3b. Big marquee rows — single seamless loop (rebuilt once fonts load) + scroll speed-up */
+  const marqueeRefs = [];
   document.querySelectorAll("[data-marquee]").forEach((row) => {
     const dir = parseFloat(row.dataset.dir) || 1;
-    const half = row.scrollWidth / 2;
-
-    // continuous base scroll
-    gsap.to(row, {
-      x: dir < 0 ? half : -half,
-      duration: 22,
-      ease: "none",
-      repeat: -1,
-      modifiers: {
-        x: (x) => {
-          const v = parseFloat(x) % half;
-          return (dir < 0 ? v : v) + "px";
-        },
-      },
-    });
-
-    // extra shove based on scroll position
-    gsap.to(row, {
-      x: dir < 0 ? "+=160" : "-=160",
-      ease: "none",
-      scrollTrigger: {
-        trigger: row,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1,
-      },
-    });
+    const ref = { loop: null };
+    const build = () => {
+      if (ref.loop) ref.loop.kill();
+      gsap.set(row, { x: 0 });
+      const half = row.scrollWidth / 2 || 1; // one copy width (two identical spans)
+      ref.loop = gsap.to(row, {
+        x: dir < 0 ? half : -half,
+        duration: 24,
+        ease: "none",
+        repeat: -1,
+        modifiers: { x: (x) => (parseFloat(x) % half) + "px" },
+      });
+    };
+    build();
+    // recompute after the display font (Anton) loads so the wrap is seamless, and on resize
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+    let rt;
+    window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+    marqueeRefs.push(ref);
   });
+  // scrolling briefly speeds the rows up via timeScale (no competing x tween → no stutter)
+  if (lenis && marqueeRefs.length) {
+    lenis.on("scroll", ({ velocity }) => {
+      const ts = 1 + Math.min(Math.abs(velocity) * 0.5, 5);
+      marqueeRefs.forEach((r) => r.loop && r.loop.timeScale(ts));
+    });
+    gsap.ticker.add(() => {
+      marqueeRefs.forEach((r) => {
+        if (!r.loop) return;
+        const ts = r.loop.timeScale();
+        if (ts > 1) r.loop.timeScale(Math.max(1, ts - 0.06));
+      });
+    });
+  }
 
   /* 3a-1. About label reveal */
   if (document.querySelector(".intro__label")) {
