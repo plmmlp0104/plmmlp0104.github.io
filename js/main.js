@@ -139,7 +139,14 @@ function initScrollAnimations() {
         duration: 24 * copies, // keep per-word speed constant regardless of copy count
         ease: "none",
         repeat: -1,
-        modifiers: { x: (x) => (parseFloat(x) % half) + "px" },
+        // keep the offset within (-half, 0] for BOTH directions so the viewport is always covered
+        modifiers: {
+          x: (x) => {
+            let v = parseFloat(x) % half;
+            if (v > 0) v -= half;
+            return v + "px";
+          },
+        },
       });
     };
     build();
