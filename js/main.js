@@ -415,14 +415,14 @@ function setupWork() {
   }
 
   const N = cards.length; // 9
-  // tight 3x3 grid that fills the viewport (vstory-style, edge to edge)
-  const cols = [1.5, 34, 66.5]; // vw (left), card 32vw wide, ~0.5vw gap
-  const rows = [2, 35, 68]; // vh (top), card 30vh tall
+  // big tight 3x3 grid that overflows the viewport (vstory-style — cards fill the screen)
+  const cols = [-6.5, 32.5, 71.5]; // vw (left), card 37vw wide, ~2vw gap, bleeds off edges
+  const rows = [-5, 33, 71]; // vh (top), card 36vh tall
   const grid = cards.map((_, i) => ({
     left: cols[i % 3] + "vw",
     top: rows[Math.floor(i / 3)] + "vh",
-    width: "32vw",
-    height: "30vh",
+    width: "37vw",
+    height: "36vh",
   }));
   // vertical column (right side), each card one "screen" apart
   const GAP = 80; // vh
