@@ -12,7 +12,7 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").match
 ----------------------------------------------------------- */
 let lenis;
 if (!reduceMotion) {
-  lenis = new Lenis({ lerp: 0.14, wheelMultiplier: 1.05, smoothWheel: true });
+  lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
   lenis.on("scroll", ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);
@@ -408,6 +408,20 @@ function setupWork() {
   setCaption(ORDER[0]);
   if (scArrow) scArrow.addEventListener("click", () => openModal(activeId));
 
+  // ---- Mobile / reduced-motion: simple vertical list (no pin, no scroll-jack) ----
+  if (window.innerWidth < 1024 || reduceMotion) {
+    stage.classList.add("is-static");
+    cards.forEach((c) => {
+      const p = PROJECTS[c.dataset.project];
+      if (!p) return;
+      const meta = document.createElement("div");
+      meta.className = "ws__cardmeta";
+      meta.innerHTML = `<span class="ws__cardcat">${p.cat}</span><h3 class="ws__cardname">${p.title}</h3>`;
+      c.insertAdjacentElement("afterend", meta);
+    });
+    return;
+  }
+
   // layouts — consistent units (left/width = vw, top/height = vh)
   const scattered = [
     { left: "3vw",  top: "8vh",  width: "24vw", height: "30vh" },
@@ -444,7 +458,7 @@ function setupWork() {
       start: "top top",
       end: "+=420%",
       pin: true,
-      scrub: 0.5,
+      scrub: 1.2,
       onUpdate: (self) => {
         if (self.progress > 0.5) {
           const vp = (self.progress - 0.5) / 0.5;
@@ -492,18 +506,18 @@ function setupWork() {
         if (!st.isActive) return;
         const p = st.progress;
         if (p < 0.46) return; // only the vertical card phase
-        if (Math.abs(velocity) > 0.06) return; // still moving — don't fight the user
+        if (Math.abs(velocity) > 0.04) return; // only settle once the user has stopped
         let near = SNAPS[0];
         for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
-        if (Math.abs(near - p) < 0.004) return; // already locked
+        if (Math.abs(near - p) < 0.013) return; // close enough — leave it (no micro-jumps)
         const target = st.start + near * (st.end - st.start);
         snapping = true;
         lenis.scrollTo(target, {
-          duration: 0.45,
+          duration: 0.7,
           easing: (t) => 1 - Math.pow(1 - t, 3),
           onComplete: () => { snapping = false; },
         });
-      }, 110);
+      }, 160);
     });
   }
 }

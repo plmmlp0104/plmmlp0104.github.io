@@ -359,8 +359,9 @@ a { color: inherit; text-decoration: none; }
 .edu__bio h3 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.02em; }
 .edu__role { color: var(--muted); font-weight: 600; margin-top: 0.4rem; letter-spacing: 0.02em; }
 .edu__bioText { margin-top: 1rem; max-width: 42ch; line-height: 1.7; color: #38332f; }
-@media (max-width: 560px) {
+@media (max-width: 680px) {
   .edu__profile { flex-direction: column; align-items: flex-start; }
+  .edu__grid { grid-template-columns: 1fr; gap: 2.5rem; }
 }
 .edu__grid {
   display: grid;
@@ -499,6 +500,60 @@ a { color: inherit; text-decoration: none; }
 }
 .ws__caption .showcase__cat { display: block; }
 .ws__caption .showcase__name { margin: 0.4rem 0 0; }
+
+/* card meta labels — only used in the static (mobile) layout */
+.ws__cardmeta { display: none; }
+
+/* ===== Work stage — static fallback (mobile / reduced-motion) ===== */
+.workstage.is-static {
+  height: auto;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(4rem, 10vh, 7rem) clamp(20px, 5vw, 56px) clamp(3rem, 6vh, 5rem);
+}
+.workstage.is-static .ws__title {
+  order: -1;
+  position: static;
+  height: auto;
+  align-items: flex-start;
+  text-align: left;
+  pointer-events: auto;
+  margin-bottom: 2.5rem;
+}
+.workstage.is-static .ws__caption { display: none; }
+.workstage.is-static .ws__cards {
+  position: static;
+  inset: auto;
+  perspective: none;
+  display: flex;
+  flex-direction: column;
+}
+.workstage.is-static .ws__card {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  filter: none;
+  opacity: 1;
+  transform: none;
+}
+.workstage.is-static .ws__cardmeta { display: block; margin: 0.9rem 0 2.4rem; }
+.workstage.is-static .ws__cardcat {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.workstage.is-static .ws__cardname {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  line-height: 1.04;
+  margin-top: 0.25rem;
+}
 
 /* Work intro — blurry shape collage with title on top (vstory hero feel) */
 .work__intro {
