@@ -453,7 +453,7 @@ function setupWork() {
   const COL_ORDER = [4, 7, 0, 1, 2, 3, 5, 6, 8];
   const GAP = 80; // vh between stacked cards
   const column = COL_ORDER.map((_, slot) => ({
-    left: "20vw", width: "60vw", height: "62vh", top: slot * GAP + 19 + "vh",
+    left: "47vw", width: "49vw", height: "60vh", top: slot * GAP + 19 + "vh",
   }));
   const endY = -((N - 1) * GAP);
   // initial: 3x3 grid, dim; whole grid tilted in 3D
@@ -482,10 +482,11 @@ function setupWork() {
         COL_ORDER.forEach((cardIdx, slot) => {
           const d = Math.abs(slot - center);
           const t = Math.min(d, 1);
-          // no tilt / morph / zoom — centered card stays flat & sharp; the ones above & below just blur out
+          // no tilt / morph — centered card just zooms in (enlarge); the ones above & below blur out
           gsap.set(cards[cardIdx], {
             clipPath: "none",
-            y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0, scale: 1,
+            y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0,
+            scale: 1.1 - t * 0.22, // centered card enlarges (~1.1); neighbours shrink (~0.88)
             borderRadius: "24px",
             filter: `blur(${Math.min(d, 1.6) * 10}px)`,
             opacity: Math.max(0, 1 - d * 0.6),
