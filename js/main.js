@@ -435,7 +435,7 @@ function setupWork() {
   cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0 }));
   gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, transformOrigin: "50% 50%" });
 
-  const V_START = 0.25; // progress at which the vertical card phase begins
+  const V_START = 0.21; // progress at which the vertical card phase begins
 
   const tl = gsap.timeline({
     scrollTrigger: {
@@ -450,16 +450,16 @@ function setupWork() {
         const vp = (p - V_START) / (1 - V_START);
         const center = vp * (N - 1); // fractional centered index
         setCaption(ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]);
-        // centered card big & sharp; neighbours smaller, blurry, slightly twisted
+        // only the centered card + the one just below stay; the rest blur away.
         cards.forEach((c, i) => {
           const d = Math.abs(i - center);
           const t = Math.min(d, 1);
           gsap.set(c, {
-            scale: 1 - t * 0.16,
-            filter: `brightness(${1 - t * 0.45}) blur(${t * 7}px)`,
-            opacity: 1 - t * 0.32,
-            rotation: (i < center ? -1 : 1) * t * 3,
-            rotationY: -7 + (i < center ? -1 : 1) * t * 9, // faces front, then turns slightly right
+            scale: 1 - t * 0.18,
+            filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.6) * 9}px)`,
+            opacity: Math.max(0, 1 - d * 0.6), // center=1, below≈0.4, further=gone
+            rotation: (i < center ? -1 : 1) * t * 2,
+            rotationY: -8 + (i < center ? -1 : 1) * t * 8, // faces front then turns slightly right
             zIndex: 60 - Math.round(t * 20),
           });
         });
@@ -471,13 +471,12 @@ function setupWork() {
   tl.to(cardsWrap, { rotateX: 0, rotateZ: 0, scale: 1, duration: 0.8, ease: "power2.out" }, 0);
   tl.to(cards, { filter: "brightness(1)", duration: 0.7, ease: "power2.out" }, 0.1);
   tl.to("#wsTitle", { opacity: 0, scale: 0.85, duration: 0.5, ease: "power2.in" }, 0);
-  // phase 2 — grid → vertical column on the right (주변 흐려지고 / 두개만 남고 starts)
-  cards.forEach((c, i) =>
-    tl.to(c, { ...column[i], filter: "brightness(1)", duration: 0.9, ease: "power3.inOut" }, 0.9)
-  );
-  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 1.7);
-  // phase 3 — scroll the column up: each card grows/sharpens at center, name on the left
-  tl.to(cardsWrap, { yPercent: endY, duration: 6.0, ease: "none" }, 2.0); // total ≈ 8 → vertical = progress 0.25→1
+  // phase 2 — grid blurs AWAY in place (no fly-around), then snaps into the stack while hidden
+  tl.to(cards, { filter: "brightness(0.7) blur(14px)", opacity: 0, duration: 0.5, ease: "power2.in" }, 0.9);
+  cards.forEach((c, i) => tl.set(c, { ...column[i] }, 1.4)); // reposition while invisible (cross-fade, not scatter)
+  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 1.5);
+  // phase 3 — scroll the stack: centered card big/sharp/turned-right, the one below peeks, rest gone
+  tl.to(cardsWrap, { yPercent: endY, duration: 6.0, ease: "none" }, 1.6); // total ≈ 7.6 → vertical = progress ~0.21→1
 
   // ---- Lenis-friendly settle-snap on each card (only once the user stops) ----
   if (lenis) {
