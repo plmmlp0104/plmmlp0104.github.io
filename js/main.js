@@ -482,24 +482,13 @@ function setupWork() {
         COL_ORDER.forEach((cardIdx, slot) => {
           const d = Math.abs(slot - center);
           const t = Math.min(d, 1);
-          // focus progress: 0 = far/below, 1 = dead center
-          const fp = 1 - t;
-          // 3-stage morph: (a) shape warps + slides down + head tilts back → (b) straightens → (c) zooms
-          const K0 = [6, 10, 96, 2, 98, 88, 3, 100];
-          const K1 = [2, 3, 99, 0, 100, 96, 0, 100];
-          const K2 = [0, 0, 100, 0, 100, 100, 0, 100];
-          let A, B, u;
-          if (fp < 0.5) { A = K0; B = K1; u = fp / 0.5; } else { A = K1; B = K2; u = (fp - 0.5) / 0.5; }
-          const q = A.map((v, i) => +(v + (B[i] - v) * u).toFixed(2));
-          const seg = (a, b, c) => (fp < 0.5 ? a + (b - a) * (fp / 0.5) : b + (c - b) * ((fp - 0.5) / 0.5));
+          // no tilt / morph / zoom — centered card stays flat & sharp; the ones above & below just blur out
           gsap.set(cards[cardIdx], {
-            clipPath: `polygon(${q[0]}% ${q[1]}%, ${q[2]}% ${q[3]}%, ${q[4]}% ${q[5]}%, ${q[6]}% ${q[7]}%)`,
-            y: seg(70, 20, 0),            // slides down while morphing, then back up
-            rotateX: seg(12, 4, 0),        // top edge leans back (head bows)
-            rotateZ: seg(-2, -0.8, 0),     // tiny twist so it isn't stiff
-            scale: seg(0.78, 0.9, 1.18),   // small → straightens → zooms in
-            filter: `brightness(${1 - t * 0.4}) blur(${Math.min(d, 1.5) * 9}px)`,
-            opacity: Math.max(0, 1 - d * 0.55),
+            clipPath: "none",
+            y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0, scale: 1,
+            borderRadius: "24px",
+            filter: `blur(${Math.min(d, 1.6) * 10}px)`,
+            opacity: Math.max(0, 1 - d * 0.6),
             zIndex: 60 - Math.round(t * 20),
           });
         });
