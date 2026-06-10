@@ -5,6 +5,10 @@
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+// always start at the top on (re)load — don't restore previous scroll position
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
+
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* -----------------------------------------------------------
@@ -55,6 +59,10 @@ function playHero() {
 gsap.set(".reveal-up", { y: 24 });
 
 function runLoader() {
+  // ensure we begin at the very top (refresh / back-forward)
+  window.scrollTo(0, 0);
+  if (lenis) lenis.scrollTo(0, { immediate: true });
+
   const el = document.getElementById("loaderCount");
   const loader = document.getElementById("loader");
   const counter = { v: 0 };
