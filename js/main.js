@@ -122,13 +122,21 @@ function initScrollAnimations() {
   document.querySelectorAll("[data-marquee]").forEach((row) => {
     const dir = parseFloat(row.dataset.dir) || 1;
     const ref = { loop: null };
+    if (!row.dataset.phrase) row.dataset.phrase = row.children[0].textContent;
     const build = () => {
       if (ref.loop) ref.loop.kill();
+      const phrase = row.dataset.phrase;
+      // measure one phrase, then repeat it enough that ONE block is wider than the viewport
+      row.innerHTML = `<span>${phrase}</span>`;
+      const w = row.children[0].getBoundingClientRect().width || 1;
+      const copies = Math.max(2, Math.ceil(window.innerWidth / w) + 1);
+      const block = phrase.repeat(copies);
+      row.innerHTML = `<span>${block}</span><span>${block}</span>`;
       gsap.set(row, { x: 0 });
-      const half = row.scrollWidth / 2 || 1; // one copy width (two identical spans)
+      const half = row.scrollWidth / 2 || 1; // one block (≥ viewport → never any gap)
       ref.loop = gsap.to(row, {
         x: dir < 0 ? half : -half,
-        duration: 24,
+        duration: 24 * copies, // keep per-word speed constant regardless of copy count
         ease: "none",
         repeat: -1,
         modifiers: { x: (x) => (parseFloat(x) % half) + "px" },
