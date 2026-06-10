@@ -1,0 +1,11 @@
+# local tooling / config
+.claude/
+
+# source captures & duplicates (not used by the site)
+assets/canva/
+증사.jpg
+
+# os / editor
+.DS_Store
+Thumbs.db
+node_modules/

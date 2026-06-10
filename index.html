@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>문재희 — Communication Design Portfolio</title>
+  <meta name="description" content="문재희 커뮤니케이션 디자인 포트폴리오 — 브랜드, 일러스트레이션, 에디토리얼, 모션." />
+
+  <!-- Display font (heavy condensed) + Pretendard (KR) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ===== Loader ===== -->
+  <div class="loader" id="loader">
+    <span class="loader__count" id="loaderCount">0</span>
+  </div>
+
+  <!-- ===== Header ===== -->
+  <header class="nav" id="nav">
+    <button class="nav__burger" id="navBurger" type="button" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ===== Slide-out Menu ===== -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <button class="menu__close" id="menuClose" type="button" aria-label="메뉴 닫기">✕</button>
+    <nav class="menu__nav">
+      <a href="#hero" data-menu-link><span>01</span> Home</a>
+      <a href="#about" data-menu-link><span>02</span> About</a>
+      <a href="#education" data-menu-link><span>03</span> Education</a>
+      <a href="#work" data-menu-link><span>04</span> Work</a>
+      <a href="#contact" data-menu-link><span>05</span> Contact</a>
+    </nav>
+    <div class="menu__foot">
+      <a href="mailto:plmmlp3333@gmail.com">plmmlp3333@gmail.com</a>
+      <a href="https://instagram.com/plmmlp0104" target="_blank" rel="noopener">@plmmlp0104</a>
+    </div>
+  </div>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero" id="hero">
+    <div class="hero__inner">
+      <p class="hero__eyebrow reveal-up">문재희 — Communication Designer</p>
+      <h1 class="hero__title">
+        <span class="line"><span class="line__inner">PORT</span></span>
+        <span class="line"><span class="line__inner">FOLIO</span></span>
+      </h1>
+      <ul class="tags reveal-up">
+        <li class="tag tag--fill">대체 불가능한</li>
+        <li class="tag">인재상에 적합한</li>
+        <li class="tag tag--fill">성장하는중</li>
+        <li class="tag">미래의 리더</li>
+        <li class="tag tag--fill">항상 노력하는</li>
+      </ul>
+    </div>
+    <div class="hero__scroll reveal-up">
+      <span>SCROLL</span>
+      <i class="hero__scroll-line"></i>
+    </div>
+  </section>
+
+  <!-- ===== Intro / About ===== -->
+  <section class="intro" id="about">
+    <div class="intro__inner">
+      <div class="intro__left">
+        <span class="intro__label reveal-up"><i class="star">✦</i> About</span>
+        <p class="intro__lead" data-split>노력하여 한 발자국씩 성장해 나가는 문재희입니다.</p>
+      </div>
+      <div class="intro__body">
+        <p>저는 현재 강남대학교에서 디자인을 공부하고 있습니다.</p>
+        <p>동아리에 적극적으로 참여하며 팀워크와 리더십을 키워왔습니다. 특히 프로젝트와 활동을 통해 문제 해결 능력을 키웠고, 창의적인 아이디어로 팀의 목표를 달성하는 데 기여했습니다.</p>
+        <p>앞으로도 끊임없이 성장하고 배움을 멈추지 않을 것입니다. 제 열정과 노력이 더 나은 세상을 만드는 데 기여할 수 있기를 희망합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Education ===== -->
+  <section class="edu" id="education">
+    <h2 class="section-title"><i class="star">✦</i> Education <i class="star">✦</i></h2>
+    <div class="edu__profile">
+      <div class="edu__photo"><img src="assets/profile.jpg" alt="문재희 증명사진" /></div>
+      <div class="edu__bio">
+        <h3>문재희</h3>
+        <p class="edu__role">Communication Designer · 2006.01.04</p>
+        <p class="edu__bioText">강남대학교에서 디자인을 공부하며, 일러스트레이션·캐릭터·편집 디자인을 중심으로 작업합니다.</p>
+      </div>
+    </div>
+    <div class="edu__grid">
+      <div class="edu__col">
+        <h3 class="edu__h">학력</h3>
+        <ul class="edu__list">
+          <li><span>강남대학교</span><em>디자인 · 재학</em></li>
+          <li><span>고등학교</span><em>커뮤니케이션디자인 전공</em></li>
+        </ul>
+        <h3 class="edu__h">자격증</h3>
+        <ul class="edu__list">
+          <li><span>컴퓨터그래픽스운용기능사</span><em></em></li>
+          <li><span>GTQi</span><em>1급</em></li>
+          <li><span>GTQ</span><em>1급</em></li>
+          <li><span>ITQ 엑셀</span><em>B등급</em></li>
+          <li><span>ITQ 한글</span><em>B등급</em></li>
+          <li><span>ITQ 파워포인트</span><em>A등급</em></li>
+        </ul>
+      </div>
+      <div class="edu__col">
+        <h3 class="edu__h">공모전 수상 <small>2022 — 2024</small></h3>
+        <ul class="edu__awards">
+          <li><span>2024 국제 캐릭터 콘텐츠 공모대전</span><em>동상</em></li>
+          <li><span>2024 경기도상업교육페스티벌</span><em>은상</em></li>
+          <li><span>2023 교내 캐릭터디자인대회</span><em>금상</em></li>
+          <li><span>2023 교내 직업능력경진대회</span><em>금상</em></li>
+          <li><span>2023 DU DESIGN AWARDS</span><em>금상</em></li>
+          <li><span>2023 커뮤니케이션 디자인 국제 공모전</span><em>우수상</em></li>
+          <li><span>2022 가정폭력·아동학대 예방 공모전</span><em>우수상</em></li>
+          <li><span>2022 문수청소년센터 마스코트 공모전</span><em>은상</em></li>
+          <li><span>2023 국제 캐릭터 콘텐츠 공모대전</span><em>장려상</em></li>
+          <li><span>2023 전국 고교생 디자인 경진대회</span><em>장려상</em></li>
+          <li><span>2023 대한민국디자인전람회</span><em>입선</em></li>
+          <li class="edu__total"><span>교내상 18개 · 교외상 14개</span><em></em></li>
+        </ul>
+      </div>
+    </div>
+    <div class="edu__curri">
+      <h3 class="edu__h">커리큘럼 <small>2022 — 2024</small></h3>
+      <div class="edu__tags">
+        <span>컴퓨터 그래픽</span><span>조형 디자인</span><span>광고 콘텐츠 제작</span>
+        <span>미디어 콘텐츠 제작</span><span>애니메이션 콘텐츠 제작</span><span>마케팅과 광고</span>
+        <span>색채 디자인</span><span>출판 편집</span><span>디자인 일반</span>
+        <span>회계원리</span><span>사무관리</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Skills ===== -->
+  <section class="skills">
+    <h2 class="section-title"><i class="star">✦</i> Skills <i class="star">✦</i></h2>
+    <div class="skills__list">
+      <div class="skill" data-skill data-level="95">
+        <div class="skill__top"><span>ILLUSTRATOR</span><em>95</em></div>
+        <div class="skill__bar"><i></i></div>
+      </div>
+      <div class="skill" data-skill data-level="90">
+        <div class="skill__top"><span>PHOTOSHOP</span><em>90</em></div>
+        <div class="skill__bar"><i></i></div>
+      </div>
+      <div class="skill" data-skill data-level="80">
+        <div class="skill__top"><span>IN DESIGN</span><em>80</em></div>
+        <div class="skill__bar"><i></i></div>
+      </div>
+      <div class="skill" data-skill data-level="65">
+        <div class="skill__top"><span>PREMIERE PRO</span><em>65</em></div>
+        <div class="skill__bar"><i></i></div>
+      </div>
+      <div class="skill" data-skill data-level="75">
+        <div class="skill__top"><span>DRAWING</span><em>75</em></div>
+        <div class="skill__bar"><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Marquee big text (horizontal scroll) ===== -->
+  <section class="bigtext">
+    <div class="bigtext__row" data-marquee data-dir="1">
+      <span>ILLUSTRATION&nbsp;·&nbsp;BRANDING&nbsp;·&nbsp;EDITORIAL&nbsp;·&nbsp;MOTION&nbsp;·&nbsp;</span>
+      <span>ILLUSTRATION&nbsp;·&nbsp;BRANDING&nbsp;·&nbsp;EDITORIAL&nbsp;·&nbsp;MOTION&nbsp;·&nbsp;</span>
+    </div>
+    <div class="bigtext__row bigtext__row--accent" data-marquee data-dir="-1">
+      <span>CHARACTER&nbsp;·&nbsp;GRAPHIC&nbsp;·&nbsp;PACKAGING&nbsp;·&nbsp;STORY&nbsp;·&nbsp;</span>
+      <span>CHARACTER&nbsp;·&nbsp;GRAPHIC&nbsp;·&nbsp;PACKAGING&nbsp;·&nbsp;STORY&nbsp;·&nbsp;</span>
+    </div>
+  </section>
+
+  <!-- ===== Work (pinned: scatter → sharpen+grid → vertical card scroll) ===== -->
+  <section class="work" id="work">
+    <div class="workstage" id="workstage">
+      <div class="ws__cards" id="wsCards">
+        <div class="ws__card sc--1" data-project="phonecase"><span class="showcase__num">01</span><span class="sc-glyph sc-circle"></span></div>
+        <div class="ws__card sc--2" data-project="character"><span class="showcase__num">02</span><span class="sc-glyph sc-tri"></span></div>
+        <div class="ws__card sc--3" data-project="emoticon"><span class="showcase__num">03</span><span class="sc-glyph sc-square"></span></div>
+        <div class="ws__card sc--4" data-project="poster"><span class="showcase__num">04</span><span class="sc-glyph sc-diamond"></span></div>
+        <div class="ws__card sc--5" data-project="editorial"><span class="showcase__num">05</span><span class="sc-glyph sc-blob"></span></div>
+      </div>
+      <div class="ws__title" id="wsTitle">
+        <span class="work__count">2022 — 2024</span>
+        <h2 class="work__introtitle">SELECTED<br />WORK</h2>
+        <span class="work__hint">스크롤하여 작업을 둘러보세요 ↓</span>
+      </div>
+      <div class="ws__caption" id="wsCaption">
+        <span class="showcase__cat" id="scCat"></span>
+        <h3 class="showcase__name" id="scName"></h3>
+        <button class="showcase__arrow" id="scArrow" type="button">자세히 보기 <span class="showcase__arrowicon">→</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer CTA ===== -->
+  <footer class="cta" id="contact">
+    <h2 class="cta__title">
+      <span class="line"><span class="line__inner">THANK YOU FOR</span></span>
+      <span class="line"><span class="line__inner">REVIEWING MY</span></span>
+      <span class="line"><span class="line__inner">PORTFOLIO</span></span>
+    </h2>
+
+    <div class="cta__contacts reveal-up">
+      <a href="mailto:plmmlp3333@gmail.com">plmmlp3333@gmail.com</a>
+      <a href="https://instagram.com/plmmlp0104" target="_blank" rel="noopener">@plmmlp0104</a>
+      <a href="tel:01095517722">010-9551-7722</a>
+    </div>
+
+    <div class="cta__bottom">
+      <span>© 2026 문재희. Communication Design.</span>
+      <span>Seoul, KR</span>
+    </div>
+  </footer>
+
+  <!-- ===== Project Detail (full-screen) ===== -->
+  <div class="detail" id="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="detail__bar">
+      <button class="detail__back" data-close type="button"><span>←</span> BACK</button>
+      <span class="detail__brand">문재희<span>.</span></span>
+    </div>
+    <div class="detail__scroll" id="detailScroll" data-lenis-prevent>
+      <div class="detail__hero reveal-d">
+        <div class="detail__shape" id="modalHeroShape"><span class="sc-glyph" id="modalGlyph"></span></div>
+      </div>
+      <div class="detail__body">
+        <div class="detail__head reveal-d">
+          <span class="modal__cat" id="modalCat"></span>
+          <h2 class="detail__title" id="modalTitle"></h2>
+        </div>
+        <ul class="modal__meta reveal-d" id="modalMeta"></ul>
+        <div class="modal__desc reveal-d" id="modalDesc"></div>
+      </div>
+      <figure class="detail__board reveal-d">
+        <div class="detail__shape detail__shape--board" id="modalBoardShape"><span class="sc-glyph" id="modalGlyph2"></span></div>
+        <figcaption>작업 미리보기</figcaption>
+      </figure>
+
+      <div class="detail__cta reveal-d">
+        <div class="detail__ctatext">
+          <h3>THANK YOU FOR<br />REVIEWING MY PORTFOLIO</h3>
+          <div class="detail__ctacontacts">
+            <a href="mailto:plmmlp3333@gmail.com">plmmlp3333@gmail.com</a>
+            <a href="https://instagram.com/plmmlp0104" target="_blank" rel="noopener">@plmmlp0104</a>
+            <a href="tel:01095517722">010-9551-7722</a>
+          </div>
+        </div>
+        <button class="detail__backarrow" data-close type="button" aria-label="목록으로 돌아가기">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <line x1="80" y1="20" x2="30" y2="70" />
+            <polyline points="58,72 28,72 28,42" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Scripts ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
