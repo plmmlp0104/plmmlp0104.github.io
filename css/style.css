@@ -457,8 +457,9 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   height: 100vh;
   overflow: hidden;
+  perspective: 1500px;
 }
-.ws__cards { position: absolute; inset: 0; z-index: 1; perspective: 1600px; }
+.ws__cards { position: absolute; inset: 0; z-index: 1; transform-style: preserve-3d; will-change: transform; }
 .ws__card {
   position: absolute;
   border-radius: 20px;
@@ -501,10 +502,7 @@ a { color: inherit; text-decoration: none; }
 .ws__caption .showcase__cat { display: block; }
 .ws__caption .showcase__name { margin: 0.4rem 0 0; }
 
-/* card meta labels — only used in the static (mobile) layout */
-.ws__cardmeta { display: none; }
-
-/* ===== Work stage — static fallback (mobile / reduced-motion) ===== */
+/* ===== Work stage — static fallback (mobile / reduced-motion): 2-col grid ===== */
 .workstage.is-static {
   height: auto;
   overflow: visible;
@@ -525,34 +523,21 @@ a { color: inherit; text-decoration: none; }
 .workstage.is-static .ws__cards {
   position: static;
   inset: auto;
-  perspective: none;
-  display: flex;
-  flex-direction: column;
+  transform: none;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 .workstage.is-static .ws__card {
   position: relative;
   left: auto;
   top: auto;
-  width: 100%;
+  width: auto;
   height: auto;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   filter: none;
   opacity: 1;
   transform: none;
-}
-.workstage.is-static .ws__cardmeta { display: block; margin: 0.9rem 0 2.4rem; }
-.workstage.is-static .ws__cardcat {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.workstage.is-static .ws__cardname {
-  font-family: var(--display);
-  font-size: clamp(1.8rem, 8vw, 2.6rem);
-  line-height: 1.04;
-  margin-top: 0.25rem;
 }
 
 /* Work intro — blurry shape collage with title on top (vstory hero feel) */

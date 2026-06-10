@@ -408,95 +408,80 @@ function setupWork() {
   setCaption(ORDER[0]);
   if (scArrow) scArrow.addEventListener("click", () => openModal(activeId));
 
-  // ---- Mobile / reduced-motion: simple vertical list (no pin, no scroll-jack) ----
+  // ---- Mobile / reduced-motion: simple 2-col grid of cards (no pin) ----
   if (window.innerWidth < 1024 || reduceMotion) {
     stage.classList.add("is-static");
-    cards.forEach((c) => {
-      const p = PROJECTS[c.dataset.project];
-      if (!p) return;
-      const meta = document.createElement("div");
-      meta.className = "ws__cardmeta";
-      meta.innerHTML = `<span class="ws__cardcat">${p.cat}</span><h3 class="ws__cardname">${p.title}</h3>`;
-      c.insertAdjacentElement("afterend", meta);
-    });
     return;
   }
 
-  // layouts — consistent units (left/width = vw, top/height = vh)
-  const scattered = [
-    { left: "3vw",  top: "8vh",  width: "24vw", height: "30vh" },
-    { left: "38vw", top: "2vh",  width: "27vw", height: "27vh" },
-    { left: "72vw", top: "10vh", width: "24vw", height: "30vh" },
-    { left: "10vw", top: "56vh", width: "26vw", height: "32vh" },
-    { left: "58vw", top: "58vh", width: "30vw", height: "30vh" },
-  ];
-  const grid = [
-    { left: "9vw",  top: "16vh", width: "26vw", height: "30vh" },
-    { left: "37vw", top: "16vh", width: "26vw", height: "30vh" },
-    { left: "65vw", top: "16vh", width: "26vw", height: "30vh" },
-    { left: "23vw", top: "54vh", width: "26vw", height: "30vh" },
-    { left: "51vw", top: "54vh", width: "26vw", height: "30vh" },
-  ];
-  const GAP = 80; // vh between stacked cards
+  const N = cards.length; // 9
+  // 3x3 grid layout
+  const cols = [7, 37, 67]; // vw (left)
+  const rows = [5, 36, 67]; // vh (top)
+  const grid = cards.map((_, i) => ({
+    left: cols[i % 3] + "vw",
+    top: rows[Math.floor(i / 3)] + "vh",
+    width: "26vw",
+    height: "28vh",
+  }));
+  // vertical column (right side), each card one "screen" apart
+  const GAP = 80; // vh
   const column = cards.map((_, i) => ({
     left: "44vw", width: "50vw", height: "62vh", top: i * GAP + 19 + "vh",
   }));
+  const endY = -((N - 1) * GAP); // yPercent for the cards container
 
-  // initial: scattered, blurry, dim
-  cards.forEach((c, i) => gsap.set(c, { ...scattered[i], filter: "blur(9px)", opacity: 0.4 }));
+  // initial: 3x3 grid, dim; whole grid tilted in 3D
+  cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0 }));
+  gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, transformOrigin: "50% 50%" });
 
-  if (reduceMotion) {
-    cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "blur(0px)", opacity: 1 }));
-    return;
-  }
-
-  const endY = -((cards.length - 1) * GAP); // yPercent for cardsWrap (100vh tall)
+  const V_START = 0.25; // progress at which the vertical card phase begins
 
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: stage,
       start: "top top",
-      end: "+=420%",
+      end: "+=560%",
       pin: true,
       scrub: 1.2,
       onUpdate: (self) => {
-        if (self.progress > 0.5) {
-          const vp = (self.progress - 0.5) / 0.5;
-          const center = vp * (cards.length - 1); // fractional centered index
-          const idx = Math.min(cards.length - 1, Math.max(0, Math.round(center)));
-          setCaption(ORDER[idx]);
-          // centered card big & sharp; others smaller & blurry
-          cards.forEach((c, i) => {
-            const t = Math.min(Math.abs(i - center), 1);
-            gsap.set(c, {
-              scale: 1 - t * 0.16,
-              filter: `blur(${t * 7}px)`,
-              opacity: 1 - t * 0.3,
-              zIndex: 50 - Math.round(t * 20),
-            });
+        const p = self.progress;
+        if (p <= V_START) return;
+        const vp = (p - V_START) / (1 - V_START);
+        const center = vp * (N - 1); // fractional centered index
+        setCaption(ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]);
+        // centered card big & sharp; neighbours smaller, blurry, slightly twisted
+        cards.forEach((c, i) => {
+          const d = Math.abs(i - center);
+          const t = Math.min(d, 1);
+          gsap.set(c, {
+            scale: 1 - t * 0.16,
+            filter: `brightness(${1 - t * 0.4}) blur(${t * 7}px)`,
+            opacity: 1 - t * 0.28,
+            rotation: (i < center ? -1 : 1) * t * 3,
+            zIndex: 60 - Math.round(t * 20),
           });
-        }
+        });
       },
     },
   });
 
-  // phase 1 — title out + cards sharpen (still scattered)
-  tl.to("#wsTitle", { opacity: 0, scale: 0.82, duration: 0.6, ease: "power2.in" }, 0);
-  tl.to(cards, { filter: "blur(0px)", opacity: 1, duration: 0.7, ease: "power2.out" }, 0);
-  // phase 2 — scatter → grid (sharpen into alignment)
-  cards.forEach((c, i) => tl.to(c, { ...grid[i], duration: 0.8, ease: "power3.inOut" }, 0.7));
-  // phase 3 — grid → vertical column + caption appears
+  // phase 1 — grid straightens (돌아가면서) + cards become vivid (진해지고) + title out
+  tl.to(cardsWrap, { rotateX: 0, rotateZ: 0, scale: 1, duration: 0.8, ease: "power2.out" }, 0);
+  tl.to(cards, { filter: "brightness(1)", duration: 0.7, ease: "power2.out" }, 0.1);
+  tl.to("#wsTitle", { opacity: 0, scale: 0.85, duration: 0.5, ease: "power2.in" }, 0);
+  // phase 2 — grid → vertical column on the right (주변 흐려지고 / 두개만 남고 starts)
   cards.forEach((c, i) =>
-    tl.to(c, { ...column[i], scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.9, ease: "power3.inOut" }, 2.0)
+    tl.to(c, { ...column[i], filter: "brightness(1)", duration: 0.9, ease: "power3.inOut" }, 0.9)
   );
-  tl.to("#wsCaption", { opacity: 1, duration: 0.5 }, 2.5);
-  // phase 4 — scroll the column up (vertical card viewing), still pinned
-  tl.to(cardsWrap, { yPercent: endY, duration: 3.0, ease: "none" }, 3.0);
+  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 1.7);
+  // phase 3 — scroll the column up: each card grows/sharpens at center, name on the left
+  tl.to(cardsWrap, { yPercent: endY, duration: 6.0, ease: "none" }, 2.0); // total ≈ 8 → vertical = progress 0.25→1
 
-  // ---- Lenis-friendly snap: lock onto each card center in the vertical phase ----
+  // ---- Lenis-friendly settle-snap on each card (only once the user stops) ----
   if (lenis) {
     const st = tl.scrollTrigger;
-    const SNAPS = [0.5, 0.625, 0.75, 0.875, 1]; // 5 card centers (progress)
+    const SNAPS = Array.from({ length: N }, (_, i) => V_START + (i / (N - 1)) * (1 - V_START));
     let snapTimer = null;
     let snapping = false;
     lenis.on("scroll", ({ velocity }) => {
@@ -505,11 +490,11 @@ function setupWork() {
       snapTimer = setTimeout(() => {
         if (!st.isActive) return;
         const p = st.progress;
-        if (p < 0.46) return; // only the vertical card phase
-        if (Math.abs(velocity) > 0.04) return; // only settle once the user has stopped
+        if (p < V_START - 0.02) return;
+        if (Math.abs(velocity) > 0.04) return;
         let near = SNAPS[0];
         for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
-        if (Math.abs(near - p) < 0.013) return; // close enough — leave it (no micro-jumps)
+        if (Math.abs(near - p) < 0.012) return;
         const target = st.start + near * (st.end - st.start);
         snapping = true;
         lenis.scrollTo(target, {
