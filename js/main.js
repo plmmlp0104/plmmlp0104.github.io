@@ -12,6 +12,8 @@ window.addEventListener("pageshow", () => {
   window.scrollTo(0, 0);
   if (lenis) lenis.scrollTo(0, { immediate: true });
 });
+// reset to the very top BEFORE unload so a refresh starts at the hero (no deep-scroll jank)
+window.addEventListener("beforeunload", () => window.scrollTo(0, 0));
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -242,22 +244,22 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA reveal — footer fills from the bottom with a rippling water surface */
-  const ctaEl = document.querySelector(".cta");
-  if (ctaEl && document.querySelector(".page") && !reduceMotion) {
-    gsap.set(".cta__title .line__inner", { yPercent: 0 });
-    gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
-    const SEG = 14; // wave resolution
-    let level = 1; // 1 = empty (surface at bottom), 0 = full
+  /* 3e. CTA reveal — the THANK YOU title fills up white from the bottom (rippling water surface) */
+  const titleEl = document.querySelector(".cta__title");
+  gsap.set(".cta__title .line__inner", { yPercent: 0 });
+  gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
+  if (titleEl && document.querySelector(".page") && !reduceMotion) {
+    const SEG = 16; // wave resolution
+    let level = 1; // 1 = empty (white at bottom), 0 = letters fully filled white
     const draw = (lv, phase) => {
-      const baseY = lv * 108 - 4; // a little overshoot so it fully clears top/bottom
+      const baseY = lv * 118 - 9; // overshoot so it fully clears top & bottom of the text
       let pts = "";
       for (let i = 0; i <= SEG; i++) {
         const x = (i / SEG) * 100;
-        const y = baseY + Math.sin(phase + (i / SEG) * Math.PI * 4) * 2.4; // ripple amplitude
+        const y = baseY + Math.sin(phase + (i / SEG) * Math.PI * 4) * 3.2; // ripple amplitude
         pts += `${x.toFixed(1)}% ${y.toFixed(2)}%, `;
       }
-      ctaEl.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
+      titleEl.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
     };
     draw(1, 0);
     ScrollTrigger.create({
@@ -269,9 +271,6 @@ function initScrollAnimations() {
     });
     let phase = 0;
     gsap.ticker.add(() => { phase += 0.05; draw(level, phase); }); // continuous ripple
-  } else if (ctaEl) {
-    gsap.set(".cta__title .line__inner", { yPercent: 0 });
-    gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
   }
 
   ScrollTrigger.refresh();
