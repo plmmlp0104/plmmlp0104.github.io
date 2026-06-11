@@ -89,16 +89,16 @@ function runLoader() {
   const tl = gsap.timeline();
   tl.to(counter, {
     v: 100,
-    duration: 1.4,
+    duration: 0.85,
     ease: "power2.inOut",
     onUpdate: () => (el.textContent = Math.round(counter.v)),
   })
     .to("#loader", {
       yPercent: -100,
-      duration: 0.9,
+      duration: 0.55,
       ease: "power4.inOut",
     })
-    .add(playHero, "-=0.4")
+    .add(playHero, "-=0.3")
     .add(initScrollAnimations, "<");
 }
 
@@ -657,4 +657,6 @@ function setupWork() {
 /* -----------------------------------------------------------
    Boot
 ----------------------------------------------------------- */
-window.addEventListener("load", runLoader);
+// start as soon as the DOM is ready (don't wait for every image) → snappier load
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", runLoader);
+else runLoader();
