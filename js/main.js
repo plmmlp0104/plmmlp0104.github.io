@@ -244,39 +244,23 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA reveal — dim text stays visible; a white copy fills up over it from the bottom (rippling) */
-  const content = document.querySelector(".cta__content");
-  gsap.set(".cta__title .line__inner", { yPercent: 0 });
-  gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
-  if (content && document.querySelector(".page") && !reduceMotion) {
-    const fill = content.cloneNode(true); // white overlay copy
-    fill.classList.add("cta__fill");
-    fill.setAttribute("aria-hidden", "true");
-    fill.querySelectorAll(".reveal-up").forEach((e) => { e.classList.remove("reveal-up"); e.style.opacity = 1; e.style.transform = "none"; });
-    content.appendChild(fill);
-    const SEG = 16; // wave resolution
-    const lvl = { v: 1 }; // 1 = empty (white at bottom), 0 = letters fully white
-    const draw = (lv, phase) => {
-      const baseY = lv * 118 - 9; // overshoot so it fully clears top & bottom of the text
-      let pts = "";
-      for (let i = 0; i <= SEG; i++) {
-        const x = (i / SEG) * 100;
-        const y = baseY + Math.sin(phase + (i / SEG) * Math.PI * 4) * 3.2; // ripple amplitude
-        pts += `${x.toFixed(1)}% ${y.toFixed(2)}%, `;
-      }
-      fill.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
-    };
-    draw(1, 0);
-    // auto-play the fill once the footer is in view (not tied to scroll); reset if scrolled back up
-    const fillTween = gsap.to(lvl, { v: 0, duration: 2.8, ease: "power1.inOut", paused: true });
+  /* 3e. CTA reveal — title lines rise up from the bottom (auto-plays when the footer is revealed) */
+  gsap.set(".cta__title .line__inner", { yPercent: 110 });
+  gsap.set(".cta .reveal-up", { opacity: 0, y: 24 });
+  if (document.querySelector(".cta__title") && document.querySelector(".page") && !reduceMotion) {
+    const reveal = gsap.timeline({ paused: true });
+    reveal
+      .to(".cta__title .line__inner", { yPercent: 0, duration: 0.95, ease: "power4.out", stagger: 0.14 }, 0)
+      .to(".cta .reveal-up", { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0.35);
     ScrollTrigger.create({
       trigger: ".page",
-      start: "bottom top", // footer fully revealed → auto-play the fill
-      onEnter: () => fillTween.restart(),
-      onLeaveBack: () => { fillTween.pause(); lvl.v = 1; },
+      start: "bottom top", // footer fully revealed → play the rise-up
+      onEnter: () => reveal.restart(),
+      onLeaveBack: () => reveal.pause(0),
     });
-    let phase = 0;
-    gsap.ticker.add(() => { phase += 0.05; draw(lvl.v, phase); }); // continuous ripple
+  } else {
+    gsap.set(".cta__title .line__inner", { yPercent: 0 });
+    gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
   }
 
   ScrollTrigger.refresh();

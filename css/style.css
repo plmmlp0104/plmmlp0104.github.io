@@ -997,11 +997,7 @@ a { color: inherit; text-decoration: none; }
   transition: opacity 0.3s var(--ease);
 }
 .cta__contacts a:hover { opacity: 0.55; }
-/* water fill: base text invisible (black on black); a white copy fills up over it from the bottom */
-.cta__content { position: relative; color: transparent; }
-.cta__content .cta__contacts a { border-bottom-color: transparent; }
-.cta__fill { position: absolute; top: 0; left: 0; width: 100%; color: #fff; pointer-events: none; }
-.cta__fill .cta__contacts a { border-bottom-color: #fff; }
+.cta__content { position: relative; }
 .cta__bottom {
   position: absolute;
   bottom: 30px; left: 0;
