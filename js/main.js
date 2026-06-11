@@ -564,19 +564,6 @@ function setupWork() {
         setCaption(ORDER[COL_ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]]);
         COL_ORDER.forEach((cardIdx, slot) => focusCard(cardIdx, Math.abs(slot - center)));
       },
-      onLeaveBack: () => {
-        // scrolled back up above Work → rewind to the 3x3 grid so the intro plays again next time
-        introPlayed = false;
-        introDone = false;
-        introTL.pause(0);
-        cards.forEach((c, i) =>
-          gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, scale: 1, y: 0, rotation: 0, rotationY: 0, clipPath: "none", borderRadius: "24px" })
-        );
-        gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, yPercent: 0 });
-        gsap.set("#wsTitle", { opacity: 1, scale: 1 });
-        gsap.set("#wsCaption", { opacity: 0 });
-        if (lenis) lenis.start();
-      },
     },
   });
   scrubTL.to(cardsWrap, { yPercent: endY, duration: 1, ease: "none" }, 0);
