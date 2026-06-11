@@ -242,18 +242,36 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA reveal — footer fills up like water (bottom → top) as the page lifts off it */
-  if (document.querySelector(".cta") && document.querySelector(".page")) {
-    gsap.set(".cta", { clipPath: "inset(100% 0% 0% 0%)" });
-    gsap.set(".cta__title .line__inner", { yPercent: 110 });
-    gsap.set(".cta .reveal-up", { opacity: 0, y: 24 });
-    gsap
-      .timeline({
-        scrollTrigger: { trigger: ".page", start: "bottom bottom", end: "bottom top", scrub: 0.6 },
-      })
-      .to(".cta", { clipPath: "inset(0% 0% 0% 0%)", ease: "none" }, 0)
-      .to(".cta__title .line__inner", { yPercent: 0, ease: "power2.out", stagger: 0.08 }, 0.2)
-      .to(".cta .reveal-up", { opacity: 1, y: 0, ease: "power2.out" }, 0.55);
+  /* 3e. CTA reveal — footer fills from the bottom with a rippling water surface */
+  const ctaEl = document.querySelector(".cta");
+  if (ctaEl && document.querySelector(".page") && !reduceMotion) {
+    gsap.set(".cta__title .line__inner", { yPercent: 0 });
+    gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
+    const SEG = 14; // wave resolution
+    let level = 1; // 1 = empty (surface at bottom), 0 = full
+    const draw = (lv, phase) => {
+      const baseY = lv * 108 - 4; // a little overshoot so it fully clears top/bottom
+      let pts = "";
+      for (let i = 0; i <= SEG; i++) {
+        const x = (i / SEG) * 100;
+        const y = baseY + Math.sin(phase + (i / SEG) * Math.PI * 4) * 2.4; // ripple amplitude
+        pts += `${x.toFixed(1)}% ${y.toFixed(2)}%, `;
+      }
+      ctaEl.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
+    };
+    draw(1, 0);
+    ScrollTrigger.create({
+      trigger: ".page",
+      start: "bottom bottom",
+      end: "bottom top",
+      scrub: 0.5,
+      onUpdate: (self) => { level = 1 - self.progress; },
+    });
+    let phase = 0;
+    gsap.ticker.add(() => { phase += 0.05; draw(level, phase); }); // continuous ripple
+  } else if (ctaEl) {
+    gsap.set(".cta__title .line__inner", { yPercent: 0 });
+    gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
   }
 
   ScrollTrigger.refresh();
