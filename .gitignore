@@ -9,3 +9,6 @@ assets/canva/
 .DS_Store
 Thumbs.db
 node_modules/
+
+# large original work images (compressed copies live in assets/work)
+카드/

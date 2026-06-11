@@ -457,16 +457,16 @@ function setupWork() {
   const scArrow = document.getElementById("scArrow");
   if (!stage || !cards.length) return;
 
-  const ORDER = cards.map((c) => c.dataset.project);
+  let activeIdx = -1;
   let activeId = null;
-  const setCaption = (id) => {
-    const p = PROJECTS[id];
-    if (!p || id === activeId) return;
-    activeId = id;
-    scCat.textContent = p.cat;
-    scName.textContent = p.title;
+  const setCaption = (idx) => {
+    const card = cards[idx];
+    if (!card || idx === activeIdx) return;
+    activeIdx = idx;
+    activeId = card.dataset.project;
+    scCat.textContent = card.dataset.cat || "";
+    scName.textContent = card.dataset.title || "";
   };
-  setCaption(ORDER[0]);
   if (scArrow) scArrow.addEventListener("click", () => openModal(activeId));
 
   // ---- Mobile / reduced-motion: simple 2-col grid of cards (no pin) ----
@@ -559,7 +559,7 @@ function setupWork() {
       onEnter: () => {
         if (introPlayed) return;
         introPlayed = true;
-        setCaption(ORDER[COL_ORDER[0]]);
+        setCaption(COL_ORDER[0]);
         if (lenis) lenis.stop(); // lock scroll while the intro plays itself
         introTL.play(0);
         gsap.delayedCall(5, () => { if (!introDone) { introDone = true; if (lenis) lenis.start(); } }); // failsafe unlock
@@ -567,7 +567,7 @@ function setupWork() {
       onUpdate: (self) => {
         if (!introDone) return; // wait until the intro finishes
         const center = self.progress * (N - 1);
-        setCaption(ORDER[COL_ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]]);
+        setCaption(COL_ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]);
         COL_ORDER.forEach((cardIdx, slot) => focusCard(cardIdx, Math.abs(slot - center)));
       },
     },
