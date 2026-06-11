@@ -954,7 +954,7 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   z-index: 1;
   background: var(--bg);
-  margin-bottom: 100vh; /* scroll room where the fixed footer underneath is revealed */
+  margin-bottom: 220vh; /* room: page lifts to reveal footer, THEN the white fill rises */
   border-bottom-left-radius: 48px;
   border-bottom-right-radius: 48px;
 }
@@ -997,6 +997,11 @@ a { color: inherit; text-decoration: none; }
   transition: opacity 0.3s var(--ease);
 }
 .cta__contacts a:hover { opacity: 0.55; }
+/* two-tone water fill: dim base text + a white copy layered on top, clipped to the water level */
+.cta__content { position: relative; color: rgba(255, 255, 255, 0.34); }
+.cta__content .cta__contacts a { border-bottom-color: rgba(255, 255, 255, 0.34); }
+.cta__fill { position: absolute; top: 0; left: 0; width: 100%; color: #fff; pointer-events: none; }
+.cta__fill .cta__contacts a { border-bottom-color: #fff; }
 .cta__bottom {
   position: absolute;
   bottom: 30px; left: 0;

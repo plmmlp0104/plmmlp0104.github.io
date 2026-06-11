@@ -244,13 +244,18 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA reveal — title + contacts fill up white from the bottom (one rippling water surface) */
-  const titleEl = document.querySelector(".cta__content");
+  /* 3e. CTA reveal — dim text stays visible; a white copy fills up over it from the bottom (rippling) */
+  const content = document.querySelector(".cta__content");
   gsap.set(".cta__title .line__inner", { yPercent: 0 });
   gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
-  if (titleEl && document.querySelector(".page") && !reduceMotion) {
+  if (content && document.querySelector(".page") && !reduceMotion) {
+    const fill = content.cloneNode(true); // white overlay copy
+    fill.classList.add("cta__fill");
+    fill.setAttribute("aria-hidden", "true");
+    fill.querySelectorAll(".reveal-up").forEach((e) => { e.classList.remove("reveal-up"); e.style.opacity = 1; e.style.transform = "none"; });
+    content.appendChild(fill);
     const SEG = 16; // wave resolution
-    let level = 1; // 1 = empty (white at bottom), 0 = letters fully filled white
+    let level = 1; // 1 = empty (white at bottom), 0 = letters fully white
     const draw = (lv, phase) => {
       const baseY = lv * 118 - 9; // overshoot so it fully clears top & bottom of the text
       let pts = "";
@@ -259,13 +264,14 @@ function initScrollAnimations() {
         const y = baseY + Math.sin(phase + (i / SEG) * Math.PI * 4) * 3.2; // ripple amplitude
         pts += `${x.toFixed(1)}% ${y.toFixed(2)}%, `;
       }
-      titleEl.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
+      fill.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
     };
     draw(1, 0);
+    // start filling only AFTER the page has fully lifted (footer + dim text already visible)
     ScrollTrigger.create({
       trigger: ".page",
-      start: "bottom bottom",
-      end: "bottom top",
+      start: "bottom top",
+      end: "+=110%",
       scrub: 0.5,
       onUpdate: (self) => { level = 1 - self.progress; },
     });
