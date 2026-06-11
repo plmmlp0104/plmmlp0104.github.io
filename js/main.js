@@ -485,93 +485,91 @@ function setupWork() {
   cards.forEach((c, i) => gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, rotation: 0, rotationY: 0 }));
   gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, transformOrigin: "50% 50%" });
 
-  const V_START = 0.3; // progress where the centered vertical scroll begins
+  // focus state of a card given its distance d from the centered slot
+  const focusCard = (cardIdx, d) => {
+    const t = Math.min(d, 1);
+    gsap.set(cards[cardIdx], {
+      clipPath: "none", y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0,
+      scale: 1.1 - t * 0.22, // centered card enlarges (~1.1); neighbours shrink (~0.88)
+      borderRadius: "24px",
+      filter: `blur(${Math.min(d, 1.6) * 10}px)`,
+      opacity: Math.max(0, 1 - d * 0.6),
+      zIndex: 60 - Math.round(t * 20),
+    });
+  };
 
-  const tl = gsap.timeline({
+  let introDone = false;
+  let introPlayed = false;
+
+  // ---- INTRO (auto-plays once, time-based): grid → straighten → fade → centered column ----
+  const introTL = gsap.timeline({ paused: true });
+  introTL.to(cardsWrap, { rotateX: 0, rotateZ: 0, scale: 1, duration: 1.0, ease: "power2.out" }, 0);
+  introTL.to(cards, { filter: "brightness(1)", duration: 0.9, ease: "power2.out" }, 0.2);
+  introTL.to("#wsTitle", { opacity: 0, scale: 0.85, duration: 0.7, ease: "power2.in" }, 0.2);
+  FADE_ORDER.forEach((idx, k) =>
+    introTL.to(cards[idx], { filter: "brightness(0.6) blur(16px)", opacity: 0, duration: 0.5, ease: "power2.in" }, 1.2 + k * 0.18)
+  );
+  // form the centered column — center(slot0) focused, below(slot1) dimmed, rest hidden in place
+  COL_ORDER.forEach((cardIdx, slot) => {
+    if (slot === 0) {
+      introTL.to(cards[cardIdx], { ...column[slot], scale: 1.1, filter: "blur(0px)", opacity: 1, duration: 0.9, ease: "power3.inOut" }, 2.7);
+    } else if (slot === 1) {
+      introTL.to(cards[cardIdx], { ...column[slot], scale: 0.88, filter: "blur(10px)", opacity: 0.4, duration: 0.9, ease: "power3.inOut" }, 2.7);
+    } else {
+      introTL.set(cards[cardIdx], { ...column[slot], scale: 0.88, filter: "blur(16px)", opacity: 0 }, 2.6);
+    }
+  });
+  introTL.to("#wsCaption", { opacity: 1, duration: 0.5 }, 3.4); // total ≈ 3.9s
+  introTL.eventCallback("onComplete", () => {
+    introDone = true;
+    if (lenis) lenis.start();
+  });
+
+  // ---- CARD BROWSING (scroll-driven): scroll the stack through all 9 cards ----
+  const scrubTL = gsap.timeline({
     scrollTrigger: {
       trigger: stage,
       start: "top top",
-      end: "+=700%",
+      end: "+=600%",
       pin: true,
       scrub: 1.2,
+      onEnter: () => {
+        if (introPlayed) return;
+        introPlayed = true;
+        setCaption(ORDER[COL_ORDER[0]]);
+        if (lenis) lenis.stop(); // lock scroll while the intro plays itself
+        introTL.play(0);
+        gsap.delayedCall(5, () => { if (!introDone) { introDone = true; if (lenis) lenis.start(); } }); // failsafe unlock
+      },
       onUpdate: (self) => {
-        const p = self.progress;
-        if (p <= V_START) {
-          // grid phase — keep cards flat rectangles (fixes leftover morph when scrolling back up)
-          cards.forEach((c) => gsap.set(c, { clipPath: "none", y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0, scale: 1, borderRadius: "24px" }));
-          return;
-        }
-        const vp = (p - V_START) / (1 - V_START);
-        const center = vp * (N - 1); // fractional centered slot
+        if (!introDone) return; // wait until the intro finishes
+        const center = self.progress * (N - 1);
         setCaption(ORDER[COL_ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]]);
-        COL_ORDER.forEach((cardIdx, slot) => {
-          const d = Math.abs(slot - center);
-          const t = Math.min(d, 1);
-          // no tilt / morph — centered card just zooms in (enlarge); the ones above & below blur out
-          gsap.set(cards[cardIdx], {
-            clipPath: "none",
-            y: 0, rotateX: 0, rotateZ: 0, rotation: 0, rotationY: 0,
-            scale: 1.1 - t * 0.22, // centered card enlarges (~1.1); neighbours shrink (~0.88)
-            borderRadius: "24px",
-            filter: `blur(${Math.min(d, 1.6) * 10}px)`,
-            opacity: Math.max(0, 1 - d * 0.6),
-            zIndex: 60 - Math.round(t * 20),
-          });
-        });
+        COL_ORDER.forEach((cardIdx, slot) => focusCard(cardIdx, Math.abs(slot - center)));
       },
     },
   });
+  scrubTL.to(cardsWrap, { yPercent: endY, duration: 1, ease: "none" }, 0);
 
-  // phase 1 — grid straightens + cards become vivid + title out
-  tl.to(cardsWrap, { rotateX: 0, rotateZ: 0, scale: 1, duration: 0.8, ease: "power2.out" }, 0);
-  tl.to(cards, { filter: "brightness(1)", duration: 0.7, ease: "power2.out" }, 0.1);
-  tl.to("#wsTitle", { opacity: 0, scale: 0.85, duration: 0.5, ease: "power2.in" }, 0);
-  // phase 2 — surrounding cards blur away ONE BY ONE (top → sides → corners), in place
-  FADE_ORDER.forEach((idx, k) =>
-    tl.to(cards[idx], { filter: "brightness(0.6) blur(16px)", opacity: 0, duration: 0.5, ease: "power2.in" }, 0.9 + k * 0.13)
-  );
-  // phase 3 — flow into a centered vertical stack (center+below move in; faded ones snap in hidden)
-  COL_ORDER.forEach((cardIdx, slot) => {
-    if (cardIdx === 4 || cardIdx === 7) {
-      tl.to(cards[cardIdx], { ...column[slot], duration: 0.8, ease: "power3.inOut" }, 2.0);
-    } else {
-      tl.set(cards[cardIdx], { ...column[slot] }, 1.85);
-    }
-  });
-  tl.to("#wsCaption", { opacity: 1, duration: 0.4 }, 2.5);
-  // phase 4 — scroll the whole stack: centered card with shaved corners; faded ones reappear below
-  tl.to(cardsWrap, { yPercent: endY, duration: 7.0, ease: "none" }, 2.8); // total ≈ 9.8 → V_START ≈ 0.286
-
-  // ---- Snap: one scroll auto-plays the intro to the first card; then it's card-by-card ----
+  // ---- card-to-card settle-snap (only after the intro is done) ----
   if (lenis) {
-    const st = tl.scrollTrigger;
-    // per-card snap points (V_START = first card … 1 = last)
-    const SNAPS = Array.from({ length: N }, (_, i) => V_START + (i / (N - 1)) * (1 - V_START));
+    const st = scrubTL.scrollTrigger;
+    const SNAPS = Array.from({ length: N }, (_, i) => i / (N - 1));
     let snapTimer = null;
     let snapping = false;
-    let lastDir = 1; // 1 = scrolling down, -1 = up
     lenis.on("scroll", ({ velocity }) => {
-      if (Math.abs(velocity) > 0.05) lastDir = velocity > 0 ? 1 : -1;
-      if (!st || snapping) return;
+      if (!st || snapping || !introDone) return;
       clearTimeout(snapTimer);
       snapTimer = setTimeout(() => {
         if (!st.isActive || Math.abs(velocity) > 0.04) return;
         const p = st.progress;
-        let near, dur = 0.7;
-        if (p < V_START - 0.02) {
-          // intro region — commit: down → auto-play through to the first card; up → back to the top
-          if (p < 0.012) return;
-          near = lastDir >= 0 ? V_START : 0;
-          dur = 1.1; // let the grid intro play out gracefully
-        } else {
-          near = SNAPS[0];
-          for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
-        }
-        if (Math.abs(near - p) < 0.004) return;
+        let near = SNAPS[0];
+        for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
+        if (Math.abs(near - p) < 0.006) return;
         const target = st.start + near * (st.end - st.start);
         snapping = true;
         lenis.scrollTo(target, {
-          duration: dur,
+          duration: 0.6,
           easing: (t) => 1 - Math.pow(1 - t, 3),
           onComplete: () => { snapping = false; },
         });
