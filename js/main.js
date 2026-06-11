@@ -244,8 +244,8 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA reveal — the THANK YOU title fills up white from the bottom (rippling water surface) */
-  const titleEl = document.querySelector(".cta__title");
+  /* 3e. CTA reveal — title + contacts fill up white from the bottom (one rippling water surface) */
+  const titleEl = document.querySelector(".cta__content");
   gsap.set(".cta__title .line__inner", { yPercent: 0 });
   gsap.set(".cta .reveal-up", { opacity: 1, y: 0 });
   if (titleEl && document.querySelector(".page") && !reduceMotion) {
