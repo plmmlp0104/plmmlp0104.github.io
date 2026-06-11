@@ -657,6 +657,10 @@ function setupWork() {
 /* -----------------------------------------------------------
    Boot
 ----------------------------------------------------------- */
-// start as soon as the DOM is ready (don't wait for every image) → snappier load
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", runLoader);
-else runLoader();
+// run after load so layout is settled before pins are measured (prevents Work from jumping/bouncing)
+if (document.readyState === "complete") runLoader();
+else window.addEventListener("load", runLoader);
+// recompute pin/trigger positions if fonts settle later (marquee height can shift)
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => { if (window.ScrollTrigger) ScrollTrigger.refresh(); });
+}
