@@ -542,31 +542,40 @@ function setupWork() {
   // phase 4 — scroll the whole stack: centered card with shaved corners; faded ones reappear below
   tl.to(cardsWrap, { yPercent: endY, duration: 7.0, ease: "none" }, 2.8); // total ≈ 9.8 → V_START ≈ 0.286
 
-  // ---- Lenis-friendly settle-snap on each card ----
+  // ---- Snap: one scroll auto-plays the intro to the first card; then it's card-by-card ----
   if (lenis) {
     const st = tl.scrollTrigger;
+    // per-card snap points (V_START = first card … 1 = last)
     const SNAPS = Array.from({ length: N }, (_, i) => V_START + (i / (N - 1)) * (1 - V_START));
     let snapTimer = null;
     let snapping = false;
+    let lastDir = 1; // 1 = scrolling down, -1 = up
     lenis.on("scroll", ({ velocity }) => {
+      if (Math.abs(velocity) > 0.05) lastDir = velocity > 0 ? 1 : -1;
       if (!st || snapping) return;
       clearTimeout(snapTimer);
       snapTimer = setTimeout(() => {
-        if (!st.isActive) return;
+        if (!st.isActive || Math.abs(velocity) > 0.04) return;
         const p = st.progress;
-        if (p < V_START - 0.02) return;
-        if (Math.abs(velocity) > 0.04) return;
-        let near = SNAPS[0];
-        for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
-        if (Math.abs(near - p) < 0.012) return;
+        let near, dur = 0.7;
+        if (p < V_START - 0.02) {
+          // intro region — commit: down → auto-play through to the first card; up → back to the top
+          if (p < 0.012) return;
+          near = lastDir >= 0 ? V_START : 0;
+          dur = 1.1; // let the grid intro play out gracefully
+        } else {
+          near = SNAPS[0];
+          for (const s of SNAPS) if (Math.abs(s - p) < Math.abs(near - p)) near = s;
+        }
+        if (Math.abs(near - p) < 0.004) return;
         const target = st.start + near * (st.end - st.start);
         snapping = true;
         lenis.scrollTo(target, {
-          duration: 0.7,
+          duration: dur,
           easing: (t) => 1 - Math.pow(1 - t, 3),
           onComplete: () => { snapping = false; },
         });
-      }, 160);
+      }, 140);
     });
   }
 }
