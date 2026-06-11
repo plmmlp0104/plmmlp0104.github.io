@@ -194,6 +194,18 @@ function initScrollAnimations() {
     });
   }
 
+  /* 3b-1. Skills section reveal — title + rows rise & fade in */
+  if (document.querySelector(".skills")) {
+    gsap.from(".skills .section-title", {
+      y: 26, opacity: 0, duration: 0.7, ease: "power3.out",
+      scrollTrigger: { trigger: ".skills", start: "top 82%" },
+    });
+    gsap.from(".skills .skill", {
+      y: 30, opacity: 0, duration: 0.6, stagger: 0.12, ease: "power3.out",
+      scrollTrigger: { trigger: ".skills__list", start: "top 88%" },
+    });
+  }
+
   /* 3b-2. Skill bars fill on scroll */
   gsap.utils.toArray("[data-skill]").forEach((skill) => {
     const bar = skill.querySelector(".skill__bar i");
@@ -546,6 +558,19 @@ function setupWork() {
         const center = self.progress * (N - 1);
         setCaption(ORDER[COL_ORDER[Math.min(N - 1, Math.max(0, Math.round(center)))]]);
         COL_ORDER.forEach((cardIdx, slot) => focusCard(cardIdx, Math.abs(slot - center)));
+      },
+      onLeaveBack: () => {
+        // scrolled back up above Work → rewind to the 3x3 grid so the intro plays again next time
+        introPlayed = false;
+        introDone = false;
+        introTL.pause(0);
+        cards.forEach((c, i) =>
+          gsap.set(c, { ...grid[i], filter: "brightness(0.45)", opacity: 1, scale: 1, y: 0, rotation: 0, rotationY: 0, clipPath: "none", borderRadius: "24px" })
+        );
+        gsap.set(cardsWrap, { rotateX: 16, rotateZ: -6, scale: 1.04, yPercent: 0 });
+        gsap.set("#wsTitle", { opacity: 1, scale: 1 });
+        gsap.set("#wsCaption", { opacity: 0 });
+        if (lenis) lenis.start();
       },
     },
   });
