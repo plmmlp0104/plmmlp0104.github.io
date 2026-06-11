@@ -34,7 +34,12 @@ document.querySelectorAll("[data-scroll]").forEach((a) => {
     const target = document.querySelector(id);
     if (!target) return;
     e.preventDefault();
-    lenis ? lenis.scrollTo(target, { offset: 0 }) : target.scrollIntoView({ behavior: "smooth" });
+    // footer is fixed behind the page → scroll to the very bottom to reveal it
+    if (id === "#contact") {
+      lenis ? lenis.scrollTo(document.body.scrollHeight, { offset: 0 }) : window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    } else {
+      lenis ? lenis.scrollTo(target, { offset: 0 }) : target.scrollIntoView({ behavior: "smooth" });
+    }
   });
 });
 
@@ -640,11 +645,18 @@ function setupWork() {
   document.querySelectorAll("[data-menu-link]").forEach((a) => {
     a.addEventListener("click", (e) => {
       e.preventDefault();
-      const target = document.querySelector(a.getAttribute("href"));
+      const href = a.getAttribute("href");
+      const target = document.querySelector(href);
       closeMenu();
       if (!target) return;
-      if (lenis) lenis.scrollTo(target, { offset: 0 });
-      else target.scrollIntoView({ behavior: "smooth" });
+      if (href === "#contact") {
+        // footer is fixed behind the page → scroll to the very bottom to reveal it
+        lenis ? lenis.scrollTo(document.body.scrollHeight, { offset: 0 }) : window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      } else if (lenis) {
+        lenis.scrollTo(target, { offset: 0 });
+      } else {
+        target.scrollIntoView({ behavior: "smooth" });
+      }
     });
   });
 })();
