@@ -955,6 +955,8 @@ a { color: inherit; text-decoration: none; }
   z-index: 1;
   background: var(--bg);
   margin-bottom: 100vh; /* scroll room where the fixed footer underneath is revealed */
+  border-bottom-left-radius: 48px;
+  border-bottom-right-radius: 48px;
 }
 .cta {
   position: fixed;

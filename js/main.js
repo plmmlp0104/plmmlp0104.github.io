@@ -242,20 +242,19 @@ function initScrollAnimations() {
   /* 3b-4 + 3c. Work pinned stage (scatter → sharpen+grid → vertical card scroll) */
   setupWork();
 
-  /* 3e. CTA headline reveal */
-  gsap.from(".cta__title .line__inner", {
-    yPercent: 110,
-    duration: 1,
-    ease: "power4.out",
-    stagger: 0.1,
-    scrollTrigger: { trigger: ".cta", start: "top 65%" },
-  });
-  gsap.to(".cta .reveal-up", {
-    opacity: 1,
-    y: 0,
-    duration: 0.8,
-    scrollTrigger: { trigger: ".cta", start: "top 55%" },
-  });
+  /* 3e. CTA reveal — footer fills up like water (bottom → top) as the page lifts off it */
+  if (document.querySelector(".cta") && document.querySelector(".page")) {
+    gsap.set(".cta", { clipPath: "inset(100% 0% 0% 0%)" });
+    gsap.set(".cta__title .line__inner", { yPercent: 110 });
+    gsap.set(".cta .reveal-up", { opacity: 0, y: 24 });
+    gsap
+      .timeline({
+        scrollTrigger: { trigger: ".page", start: "bottom bottom", end: "bottom top", scrub: 0.6 },
+      })
+      .to(".cta", { clipPath: "inset(0% 0% 0% 0%)", ease: "none" }, 0)
+      .to(".cta__title .line__inner", { yPercent: 0, ease: "power2.out", stagger: 0.08 }, 0.2)
+      .to(".cta .reveal-up", { opacity: 1, y: 0, ease: "power2.out" }, 0.55);
+  }
 
   ScrollTrigger.refresh();
 }
