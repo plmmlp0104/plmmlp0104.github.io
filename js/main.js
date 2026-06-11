@@ -255,7 +255,7 @@ function initScrollAnimations() {
     fill.querySelectorAll(".reveal-up").forEach((e) => { e.classList.remove("reveal-up"); e.style.opacity = 1; e.style.transform = "none"; });
     content.appendChild(fill);
     const SEG = 16; // wave resolution
-    let level = 1; // 1 = empty (white at bottom), 0 = letters fully white
+    const lvl = { v: 1 }; // 1 = empty (white at bottom), 0 = letters fully white
     const draw = (lv, phase) => {
       const baseY = lv * 118 - 9; // overshoot so it fully clears top & bottom of the text
       let pts = "";
@@ -267,16 +267,16 @@ function initScrollAnimations() {
       fill.style.clipPath = `polygon(${pts}100% 100%, 0% 100%)`;
     };
     draw(1, 0);
-    // start filling only AFTER the page has fully lifted (footer + dim text already visible)
+    // auto-play the fill once the footer is in view (not tied to scroll); reset if scrolled back up
+    const fillTween = gsap.to(lvl, { v: 0, duration: 2.8, ease: "power1.inOut", paused: true });
     ScrollTrigger.create({
       trigger: ".page",
-      start: "bottom top",
-      end: "+=110%",
-      scrub: 0.5,
-      onUpdate: (self) => { level = 1 - self.progress; },
+      start: "bottom top", // footer fully revealed → auto-play the fill
+      onEnter: () => fillTween.restart(),
+      onLeaveBack: () => { fillTween.pause(); lvl.v = 1; },
     });
     let phase = 0;
-    gsap.ticker.add(() => { phase += 0.05; draw(level, phase); }); // continuous ripple
+    gsap.ticker.add(() => { phase += 0.05; draw(lvl.v, phase); }); // continuous ripple
   }
 
   ScrollTrigger.refresh();
